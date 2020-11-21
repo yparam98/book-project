@@ -203,7 +203,7 @@ class BookFormTest {
         } else if (eventType.equals(EventType.DELETED)) {
             bookForm.addListener(BookForm.DeleteEvent.class,
                     event -> bookReference.set(event.getBook()));
-            bookForm.delete.click();
+            bookForm.deleteButton.click();
         }
         Book savedOrDeletedBook = bookReference.get();
 
@@ -259,7 +259,7 @@ class BookFormTest {
         assumeAllFormFieldsArePopulated();
 
         // when
-        bookForm.reset.click();
+        bookForm.resetButton.click();
 
         // then
         assertAllFieldsAreEmpty();
@@ -764,7 +764,7 @@ class BookFormTest {
         // when
         bookForm.addListener(BookForm.DeleteEvent.class,
                 event -> bookService.delete(event.getBook()));
-        bookForm.delete.click();
+        bookForm.deleteButton.click();
 
         // then
         assertThat(bookService.count()).isZero();

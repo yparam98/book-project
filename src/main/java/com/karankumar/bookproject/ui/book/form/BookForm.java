@@ -40,6 +40,9 @@ import com.karankumar.bookproject.ui.book.components.pages.PagesRead;
 import com.karankumar.bookproject.ui.book.components.PredefinedShelfComponent;
 import com.karankumar.bookproject.ui.book.components.Rating;
 import com.karankumar.bookproject.ui.book.components.SeriesPosition;
+import com.karankumar.bookproject.ui.components.buttons.Delete;
+import com.karankumar.bookproject.ui.components.buttons.Reset;
+import com.karankumar.bookproject.ui.components.buttons.Save;
 import com.karankumar.bookproject.ui.components.util.ComponentUtil;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -93,9 +96,7 @@ public class BookForm extends VerticalLayout {
     @VisibleForTesting final DateFinishedReading dateFinishedReading = new DateFinishedReading();
     @VisibleForTesting final Rating rating = new Rating();
     @VisibleForTesting final BookReview bookReview = new BookReview();
-    @VisibleForTesting final Button saveButton = new Button();
     @VisibleForTesting final InSeries inSeriesCheckbox = new InSeries();
-    @VisibleForTesting final Button reset = new Button();
 
     @VisibleForTesting FormLayout.FormItem dateStartedReadingFormItem;
     @VisibleForTesting FormLayout.FormItem dateFinishedReadingFormItem;
@@ -142,8 +143,11 @@ public class BookForm extends VerticalLayout {
             bookReview.getField()
     };
 
-    @VisibleForTesting Button delete = new Button();
     @VisibleForTesting Binder<Book> binder = new BeanValidationBinder<>(Book.class);
+
+    @VisibleForTesting final Button saveButton = new Save(LABEL_ADD_BOOK, binder);
+    @VisibleForTesting final Button resetButton = new Reset("Reset");
+    @VisibleForTesting Button deleteButton = new Delete("Delete", ButtonVariant.LUMO_ERROR);
 
     private final PredefinedShelfService predefinedShelfService;
     private final CustomShelfService customShelfService;
@@ -284,38 +288,22 @@ public class BookForm extends VerticalLayout {
      * @return a HorizontalLayout containing the save, reset & delete buttons
      */
     private HorizontalLayout configureFormButtons() {
-        configureSaveFormButton();
-        configureResetFormButton();
-        configureDeleteButton();
-
-        binder.addStatusChangeListener(event -> saveButton.setEnabled(binder.isValid()));
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(saveButton, reset, delete);
-        buttonLayout.addClassName("formButtonLayout");
-        return buttonLayout;
-    }
-
-    private void configureSaveFormButton() {
-        saveButton.setText(LABEL_ADD_BOOK);
-        saveButton.setEnabled(binder.isValid());
-        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.addClickListener(click -> validateOnSave());
-        saveButton.setDisableOnClick(true);
-    }
 
-    private void configureResetFormButton() {
-        reset.setText("Reset");
-        reset.addClickListener(event -> clearFormFields());
-    }
+        resetButton.addClickListener(event -> clearFormFields());
 
-    private void configureDeleteButton() {
-        delete.setText("Delete");
-        delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        delete.addClickListener(click -> {
+        deleteButton.addClickListener(click -> {
             fireEvent(new DeleteEvent(this, binder.getBean()));
             closeForm();
         });
-        delete.addClickListener(v -> saveButton.setText(LABEL_ADD_BOOK));
+
+        deleteButton.addClickListener(v -> saveButton.setText(LABEL_ADD_BOOK));
+
+        binder.addStatusChangeListener(event -> saveButton.setEnabled(binder.isValid()));
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(saveButton, resetButton, deleteButton);
+        buttonLayout.addClassName("formButtonLayout");
+        return buttonLayout;
     }
 
     private void validateOnSave() {
